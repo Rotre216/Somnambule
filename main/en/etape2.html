@@ -1,9 +1,9 @@
-<!-- etape1.html -->
+<!-- etape2.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Étape 1 – Le Seuil</title>
+<title>Step 2 – The dream continues</title>
 <style>
   body {background:#0a0a0a;color:#eaeaea;font-family:'Cormorant Garamond',serif;
         display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -14,21 +14,19 @@
 </style>
 </head>
 <body>
-<h2>Étape 1 — Le Seuil du rêve</h2>
-<p>“Je me suis endormi en marchant… la ville est devenue liquide.”</p>
-<audio controls>
-  <source src="audio1.mp3" type="audio/mpeg">
-</audio>
-<input id="reponse" placeholder="Entre le mot..." />
+<h2>Step 2 – The dream continues</h2>
+<p>I fell asleep while walking… The city became liquid.”</p>
+<img src="\..\Images\anneau.jpg" alt="Ring">
+<input id="reponse" placeholder="Enter the answer..." />
 <button onclick="verifier()">Entrer</button>
 <p id="message"></p>
 <script>
 function verifier(){
   const mot = document.getElementById('reponse').value.toLowerCase().trim();
-  if(mot === "lune"){
-    window.location.href = "etape2.html";
+  if(mot === "Ring"){
+    window.location.href = "etape3.html";
   } else {
-    document.getElementById('message').textContent = "Le rêve se dérobe encore...";
+    document.getElementById('message').textContent = "The dream is slipping away...";
   }
 }
 </script>

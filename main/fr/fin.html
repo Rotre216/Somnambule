@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Félicitations</title>
+<style>
+  body {
+    background:#0a0a0a;
+    color:#eaeaea;
+    font-family:'Cormorant Garamond',serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:2rem;
+    min-height:100vh;
+    text-align:center;
+  }
+  input, button {
+    margin-top:1rem;
+    background:none;
+    border:1px solid #eaeaea;
+    color:#eaeaea;
+    padding:8px;
+    border-radius:8px;
+    font-size:1rem;
+    cursor:pointer;
+  }
+  input {
+    width: 300px;
+  }
+  button:hover {
+    background: #eaeaea;
+    color: #0a0a0a;
+    transition: all 0.3s ease;
+  }
+  ul {
+    margin-top:2rem; 
+    list-style:none; 
+    padding:0; 
+    width:100%; 
+    max-width:600px; 
+    min-height: 300px;
+  }
+  li {
+    margin-bottom:1rem; 
+    border:1px solid #555; 
+    padding:1rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    text-align: left;
+    opacity: 0;
+    animation: fadeIn 1s ease-in forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  li.fadeOut {
+    animation: fadeOut 1s ease-out forwards;
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+  }
+  audio {margin-top:2rem;}
+  .poeme {
+    font-style: italic;
+    margin: 2rem 0;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<h2>Félicitations, vous avez décodé le secret des rêves</h2>
+<p class="poeme">"Dans le silence des nuits étoilées,<br>
+Les rêves dansent, légers et ailés,<br>
+Murmurant des secrets oubliés,<br>
+Au cœur de l'âme, ils sont gravés."</p>
+
+<h3>Écris ton rêve</h3>
+<input type="text" id="message" placeholder="Ton rêve...">
+<button id="envoyerBtn">Envoyer</button>
+
+<ul id="mur"></ul>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Configuration Supabase
+const supabaseUrl = "https://dlmqycqcipetssvrnbpz.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsbXF5Y3FjaXBldHNzdnJuYnB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0NjAxMDUsImV4cCI6MjA3NjAzNjEwNX0.7TwdUsg4bEPzF0v1QzXMeSIvX6nlFg4XzWmuEzFf5Iw";
+
+const { createClient } = supabase;
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+// Variables pour la rotation des messages
+let tousLesMessages = [];
+let indexActuel = 0;
+const MESSAGES_PAR_PAGE = 5; // Nombre de messages affichés à la fois
+const DUREE_AFFICHAGE = 8000; // 8 secondes par page
+
+// Fonction pour ajouter un message
+async function ajouterMessage() {
+  const texte = document.getElementById("message").value.trim();
+  if(!texte) return;
+
+  console.log("📤 Envoi du message:", texte);
+
+  const { data, error } = await supabaseClient
+    .from('Wall_of_Dreams')
+    .insert([{ My_message: texte }]);
+
+  if(error){
+    console.error("❌ Erreur insertion:", error);
+    alert("Erreur : " + error.message);
+  } else {
+    console.log("✅ Message ajouté avec succès");
+    document.getElementById("message").value = "";
+    // Recharger tous les messages pour inclure le nouveau
+    chargerMessages();
+  }
+}
+
+// Fonction pour charger les messages
+async function chargerMessages() {
+  console.log("🔍 Tentative de chargement des messages...");
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('Wall_of_Dreams')
+      .select('My_message, Created_at')
+      .order('Created_at', { ascending: false }); // Plus récents d'abord
+
+    if(error){
+      console.error("❌ Erreur chargement:", error);
+      console.error("❌ Détails:", JSON.stringify(error, null, 2));
+      document.getElementById("mur").innerHTML = "<li style='color:red;'>Erreur: " + error.message + "</li>";
+      return;
+    }
+
+    console.log("✅ Données reçues:", data);
+    tousLesMessages = data || [];
+    
+    if(tousLesMessages.length > 0) {
+      console.log("📝 Total de", tousLesMessages.length, "message(s)");
+      indexActuel = 0; // Réinitialiser l'index
+      afficherPageMessages();
+      // Démarrer la rotation automatique (seulement au premier chargement)
+      if(!window.rotationDemarree) {
+        window.rotationDemarree = true;
+        setInterval(afficherPageSuivante, DUREE_AFFICHAGE);
+      }
+    } else {
+      console.log("⚠️ Aucune donnée trouvée");
+      document.getElementById("mur").innerHTML = "<li style='text-align:center; font-style:italic;'>Aucun rêve partagé pour le moment...</li>";
+    }
+  } catch(err) {
+    console.error("💥 Exception:", err);
+    document.getElementById("mur").innerHTML = "<li style='color:red;'>Erreur technique: " + err.message + "</li>";
+  }
+}
+
+// Afficher une page de messages
+function afficherPageMessages() {
+  const mur = document.getElementById("mur");
+  mur.innerHTML = "";
+  
+  const debut = indexActuel;
+  const fin = Math.min(indexActuel + MESSAGES_PAR_PAGE, tousLesMessages.length);
+  
+  for(let i = debut; i < fin; i++) {
+    const li = document.createElement("li");
+    li.innerText = tousLesMessages[i].My_message;
+    mur.appendChild(li);
+  }
+}
+
+// Passer à la page suivante avec animation
+function afficherPageSuivante() {
+  if(tousLesMessages.length === 0) return;
+  
+  // Ajouter l'animation de sortie
+  const items = document.querySelectorAll("#mur li");
+  items.forEach(item => item.classList.add("fadeOut"));
+  
+  // Attendre la fin de l'animation puis changer les messages
+  setTimeout(() => {
+    indexActuel += MESSAGES_PAR_PAGE;
+    
+    // Revenir au début si on a atteint la fin
+    if(indexActuel >= tousLesMessages.length) {
+      indexActuel = 0;
+    }
+    
+    afficherPageMessages();
+  }, 1000); // Durée de l'animation fadeOut
+}
+
+// Associer le bouton à la fonction
+document.getElementById("envoyerBtn").addEventListener("click", ajouterMessage);
+
+// Permettre l'envoi avec la touche Entrée
+document.getElementById("message").addEventListener("keypress", function(e) {
+  if(e.key === "Enter") {
+    ajouterMessage();
+  }
+});
+
+// Charger les messages au démarrage
+chargerMessages();
+</script>
+</body>
+</html>
