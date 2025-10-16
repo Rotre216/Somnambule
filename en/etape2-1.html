@@ -1,0 +1,43 @@
+<!-- etape2.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Step 2 – The dream continues</title>
+<style>
+  body {background:#0a0a0a;color:#eaeaea;font-family:'Cormorant Garamond',serif;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        height:100vh;text-align:center;}
+  input,button {margin-top:1rem;background:none;border:1px solid #eaeaea;
+        color:#eaeaea;padding:8px;border-radius:8px;}
+  audio {margin-top:2rem;}
+</style>
+</head>
+<body>
+
+<h2>Step 2 – The dream continues</h2>
+<p>❝Poetic quote or clue❞</p>
+<img src="../Images/anneau.jpg" alt="Ring">
+  <audio controls>
+    <source src="../Audio/glow.wav" type="audio/wav">
+  </audio>
+<p>
+ The ring is glowing softly, its light pulsating like a heartbeat. As I reach out to touch it, a sense of calm washes over me.
+ But I cannot reach it. It floats, and soon, it begins to drift away, as if beckoning me to follow.
+</p>
+<input id="reponse" placeholder="Enter the answer..." />
+
+<button onclick="verifier()">Entrer</button>
+<p id="message"></p>
+<script>
+function verifier(){
+  const mot = document.getElementById('reponse').value.toLowerCase().trim();
+  if(mot === "ring"){
+    window.location.href = "etape3.html";
+  } else {
+    document.getElementById('message').textContent = "The dream is slipping away...";
+  }
+}
+</script>
+</body>
+</html>

@@ -16,15 +16,25 @@
 <body>
 <h2>Step 2 – The dream continues</h2>
 <p>❝Poetic quote or clue❞</p>
+<audio controls>
+  <source src="../Audio/whisper.wav" type="audio/wav">
+</audio>
 <p>
-  On my left I see a ring, shining with a light of its own. It seems to call out to me, promising power and mystery.
-  I walk towards it, wondering what it might inspire in me. In front of me unfolds a path, leading to an unknown destination. 
-  I am inclined to follow it, curious about what lies ahead.Suddenly a quiet voice whispers in my ear, from the darkness behind me.
-</p>
-<p><b>You have a choice to make... Chose wisely</b></p>
-<button onclick="window.location.href='etape2-1.html'">Go to the ring...</button>
-<button onclick="window.location.href='etape2-2.html'">Follow the whispers...</button>
 
+</p>
+<input id="reponse" placeholder="Enter the answer..." />
+
+<button onclick="verifier()">Entrer</button>
+<p id="message"></p>
+<script>
+function verifier(){
+  const mot = document.getElementById('reponse').value.toLowerCase().trim();
+  if(mot === "ring"){
+    window.location.href = "etape3.html";
+  } else {
+    document.getElementById('message').textContent = "The dream is slipping away...";
+  }
+}
 </script>
 </body>
 </html>
